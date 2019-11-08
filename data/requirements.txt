@@ -1,0 +1,3 @@
+Needed folders :
+
+armed_conflict
