@@ -10,6 +10,8 @@ flask = "*"
 pandas = "*"
 xlrd = "*"
 pycountry = "*"
+gensim = "*"
+nltk = "*"
 
 [requires]
 python_version = "3.6"

@@ -11,6 +11,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-3.4.1.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-jvectormap-2/jquery-jvectormap-2.0.3.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-jvectormap-2/map/jquery-jvectormap-world-mill.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='wordcloud2.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
 
     <title>Armed conflict</title>
@@ -30,6 +31,10 @@
     <h2>Ratio of headlines per conflict fom 1989 to 2018</h2>
 
     <div id="world-map-ratio" style="width: 800px; height: 600px"></div>
+
+    <h2>WordMap</h2>
+
+    <div id="word-map" style="width: 800px; height: 600px"></div>
 
 </body>
 </html>
