@@ -1,56 +1,37 @@
-function call_armed_conflict_position(pruned) {
-    let url = "/armed_conflict_number";
-
-    var FD = new FormData();
-    FD.append("pruned", pruned);
-
-    let div = "";
-
-    if(pruned === "false"){
-        div = "world-map-total"
-    }else{
-        div = "world-map-pruned"
-    }
-
+function call_armed_conflict_data(backend_url, div, title="Number of armed conflict") {
     $.ajax({
-        url: url,
+        url: backend_url,
         type: 'POST',
-        data: FD,
         processData: false,
         contentType: false
     }).done(function (data) {
-
-        let count = 0;
-
-        for (const [key, value] of Object.entries(data)) {
-            count += value
-        }
-
-        console.log(count);
-
-        show_map(data, div);
+        console.log(data);
+        show_map(data, div, title);
     });
 }
 
-function show_map(numberOfConflictDict, div) {
+function show_map(values, div, title, map='world_mill') {
 
     $('#' + div).vectorMap({
-        map: 'world_mill',
+        map: map,
         series: {
             regions: [{
-                values: numberOfConflictDict,
+                values: values,
                 scale: ['#C8EEFF', '#f63200'],
                 normalizeFunction: 'polynomial'
             }]
         },
         onRegionTipShow: function (e, el, code) {
-            el.html(el.html() + ' (Number of armed conflict - ' + numberOfConflictDict[code] + ')');
+            el.html(el.html() + ' ( ' + title + ' - ' + values[code] + ')');
         }
     });
 }
 
 
 $(document).ready(function () {
-    call_armed_conflict_position("false");
-    call_armed_conflict_position("true");
+    call_armed_conflict_data("/armed_conflict_total", "world-map-total");
+    call_armed_conflict_data("/armed_conflict_pruned", "world-map-pruned");
+    call_armed_conflict_data("/headlines_ratio_armed_conflict",
+        "world-map-ratio",
+        "Ratio of headlines per conflict")
 });
