@@ -12,6 +12,8 @@
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-jvectormap-2/jquery-jvectormap-2.0.3.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-jvectormap-2/map/jquery-jvectormap-world-mill.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='wordcloud2.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='Chart.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='utils.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
 
     <title>Armed conflict</title>
@@ -35,6 +37,18 @@
     <h2>WordMap</h2>
 
     <div id="word-map" style="width: 800px; height: 600px"></div>
+
+    <h2>Chart Pie Deaths</h2>
+
+    <div id="canvas-holder-deaths" style="width:40%">
+		<canvas id="chart-pie-deaths" width="400" height="400"></canvas>
+	</div>
+
+    <h2>Chart Pie Region</h2>
+
+    <div id="canvas-holder-region" style="width:40%">
+		<canvas id="chart-pie-region" width="400" height="400"></canvas>
+	</div>
 
 </body>
 </html>

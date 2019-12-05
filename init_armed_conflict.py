@@ -1,13 +1,13 @@
 import sys
 import os
-from src.armed_conflict import ArmedConflict
+from src.armed_conflicts_manager import ArmedConflictManager
 
 sys.path.insert(0, '../')
 import settings as st
 
 if __name__ == '__main__':
 
-    armed_conflict = ArmedConflict()
+    armed_conflict = ArmedConflictManager()
 
     armed_conflict_pickle_path = os.path.join(st.files['armed_conflict_pickle'], "ArmedConflict.pkl")
 
