@@ -24,6 +24,9 @@ class ArmedConflictManager:
 
             self.countries[country_name] = country_code
 
+        self.countries['kosovo'] = 'XK'
+        self.countries['somaliland'] = 'XS'
+
     def init_armed_conflict(self, df):
 
         armed_conflicts = []
@@ -39,10 +42,22 @@ class ArmedConflictManager:
                               row.country, country_code, row.region, row.date_start, row.date_end,
                               row.deaths_a, row.deaths_b, row.deaths_civilians))
 
+        curr_countries = [a.country for a in armed_conflicts]
+        diff_countries = self.diff(list(self.countries.keys()), curr_countries)
+
+        for c in diff_countries:
+            armed_conflicts.append(ArmedConflict(country=c, country_code=self.countries[c]))
+
         return armed_conflicts
 
     def save(self, path_file):
         pickle.dump(self, open(path_file, "wb"))
+
+    @staticmethod
+    def diff(first, second):
+        first = set(first)
+        second = set(second)
+        return [item for item in first if item not in second]
 
     @staticmethod
     def load(path_file):

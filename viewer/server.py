@@ -1,6 +1,6 @@
 import os
 import sys
-from math import log2
+import statistics
 
 from flask import Flask, render_template, jsonify
 from gensim.utils import simple_preprocess
@@ -37,6 +37,28 @@ def post_armed_conflict_pruned():
     return jsonify(json_dict)
 
 
+@app.route('/ratio_pruned_over_total', methods=['POST'])
+def post_ratio_pruned_over_total():
+    armed_conflict_total = number_of_conflict_per_country(ARMED_CONFLICT_MANAGER.armed_conflict_total)
+    armed_conflict_pruned = number_of_conflict_per_country(ARMED_CONFLICT_MANAGER.armed_conflict_pruned)
+
+    ratio_total_over_pruned = {}
+
+    for country_code in armed_conflict_pruned.keys():
+
+        if armed_conflict_total[country_code] > 0:
+            ratio = round(
+                (armed_conflict_pruned[country_code] / armed_conflict_total[country_code]), 2) * 100
+        else:
+            ratio = 0
+
+        ratio_total_over_pruned[country_code] = ratio
+
+    json_dict = ratio_total_over_pruned
+
+    return jsonify(json_dict)
+
+
 @app.route('/headlines_region', methods=['POST'])
 def post_headlines_region():
     region_headlines = {}
@@ -60,13 +82,11 @@ def post_headlines_region():
 
 @app.route('/deaths_by_side', methods=['POST'])
 def post_deaths_by_side():
-    deaths_by_side = {'deaths_a': 0, 'deaths_b': 0, 'deaths_civilians': 0}
+    deaths_by_side = {'Deaths of belligerents': 0, 'Deaths of civilians': 0}
 
     for conflict in ARMED_CONFLICT_MANAGER.armed_conflict_pruned:
-
-        deaths_by_side['deaths_a'] += conflict.deaths_a
-        deaths_by_side['deaths_b'] += conflict.deaths_b
-        deaths_by_side['deaths_civilians'] += conflict.deaths_civilians
+        deaths_by_side['Deaths of belligerents'] += (conflict.deaths_a + conflict.deaths_b)
+        deaths_by_side['Deaths of civilians'] += conflict.deaths_civilians
 
     json_dict = deaths_by_side
 
@@ -94,11 +114,41 @@ def post_headlines_ratio_armed_conflict():
         number_of_headlines = number_of_headlines_dict[country_code]
 
         if number_of_conflict > 1:
-            headlines_per_conflict[country_code] = round((log2(number_of_headlines / number_of_conflict)), 2)
+            headlines_per_conflict[country_code] = round((number_of_headlines / number_of_conflict), 2)
         else:
             headlines_per_conflict[country_code] = 0
 
     json_dict = headlines_per_conflict
+
+    return jsonify(json_dict)
+
+
+@app.route('/deaths_per_headline', methods=['POST'])
+def post_deaths_per_headline():
+    deaths_per_headline = {}
+
+    for conflict in ARMED_CONFLICT_MANAGER.armed_conflict_pruned:
+
+        country_code = conflict.country_code
+        number_of_headlines = conflict.number_of_sources
+        deaths = conflict.deaths_a + conflict.deaths_b + conflict.deaths_civilians
+
+        if country_code not in deaths_per_headline.keys():
+            deaths_per_headline[country_code] = []
+
+        if deaths > 0:
+            ratio = round((number_of_headlines / deaths), 2)
+        else:
+            ratio = 0
+
+        deaths_per_headline[country_code].append(ratio)
+
+    mean_deaths_per_headline = {}
+
+    for country in deaths_per_headline.keys():
+        mean_deaths_per_headline[country] = statistics.median(deaths_per_headline[country])
+
+    json_dict = mean_deaths_per_headline
 
     return jsonify(json_dict)
 
@@ -134,6 +184,7 @@ def number_of_conflict_per_country(armed_conflicts):
         if country_code not in number_of_conflict.keys():
             number_of_conflict[country_code] = 0
 
-        number_of_conflict[country_code] += 1
+        if conflict.conflict_name != "":
+            number_of_conflict[country_code] += 1
 
     return number_of_conflict

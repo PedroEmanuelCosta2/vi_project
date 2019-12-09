@@ -10,14 +10,22 @@ function request_data(backend_url, div, vis_function, ...args) {
     });
 }
 
-function show_map(data, div, title = "Number of armed conflict", map = 'world_mill') {
+function show_map(data, div, title = "Number of armed conflict", outlayer = false, map = 'world_mill') {
+
+    if (outlayer) {
+        for (const [key, value] of Object.entries(data)) {
+            if(key === 'TT'){
+                data['TT'] = 1
+            }
+        }
+    }
 
     $('#' + div).vectorMap({
         map: map,
         series: {
             regions: [{
                 values: data,
-                scale: ['#C8EEFF', '#f63200'],
+                scale: ['#00cc05', '#f63200'],
                 legend: {
                     vertical: false
                 },
@@ -63,7 +71,7 @@ function word_map(data, div) {
     for (const [key, value] of Object.entries(data)) {
         let new_value = value / 100;
 
-        if (new_value > 4 || key === 'civilians') {
+        if (new_value > 4) {
             word_map.push([key, value / 100])
         }
     }
@@ -76,14 +84,14 @@ function word_map(data, div) {
 
     if (isChrome) {
         grid_size = Math.round(16 * div_id.width() / 800);
-    }else{
+    } else {
         grid_size = Math.round(16 * div_id.width() / 3000);
     }
 
     WordCloud(div_id[0], {
         list: word_map,
         gridSize: grid_size,
-        shuffle: 0,
+        shuffle: 1,
         shape: 'square',
         rotateRatio: 0,
         rotationSteps: 2,
@@ -95,13 +103,16 @@ function word_map(data, div) {
 $(document).ready(function () {
     request_data("/armed_conflict_total", "world-map-total", show_map);
     request_data("/armed_conflict_pruned", "world-map-pruned", show_map);
-    request_data("/headlines_ratio_armed_conflict", "world-map-ratio", show_map,
-        "Ratio of headlines per conflict");
+    request_data("/ratio_pruned_over_total", "world-map-ratio-pruned-total", show_map,
+        "Ratio covered conflict over all");
+    request_data("/headlines_ratio_armed_conflict", "world-map-ratio-headline-conflict", show_map,
+        "Ratio of headlines per conflict", true);
+    request_data("/deaths_per_headline", "world-map-ratio-deaths-headline", show_map,
+        "Ratio of deaths per headline", true);
     request_data("/headlines_word_map", "word-map", word_map);
 
     let colors = [
-        window.chartColors.blue,
-        window.chartColors.orange,
+        window.chartColors.red,
         window.chartColors.green
     ];
 
