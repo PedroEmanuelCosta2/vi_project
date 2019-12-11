@@ -7,6 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery-jvectormap-2/jquery-jvectormap-2.0.3.css') }}"/>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}"/>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}"/>
 
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-3.4.1.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-jvectormap-2/jquery-jvectormap-2.0.3.min.js') }}"></script>
@@ -15,48 +17,142 @@
     <script type="text/javascript" src="{{ url_for('static', filename='Chart.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='utils.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
 
     <title>Armed conflict</title>
 </head>
 <body>
+<div class="container">
+    <h1>Couverture médiatique des conflits armées (1989-2018)</h1>
+	
+	<p>
+		Cet article à pour but d'explorer les rélations entre les conflits armés et la couverture médiatique qui leur est accordée.
+		Cette étude est faite sur le dataset trouvable à  <a href="https://ucdp.uu.se/downloads/index.html#ged_global">cette adresse</a> qui recense l'ensemble des conflits armées entre 1989 et 2018.<br>
+		Nous allons passer en revue diverses représentations de partie de ce dataset pour pouvoir en ressortir des observations à partir de certaines hypothèses.
+	</p>
+	
+	<p>
+		<b>Mais qu'est-ce qu'un conflit armé ?</b> un conflit armé est un combat entre deux groupes belligérants. les actes terroristes ne sont donc pas pris en compte dans ces statistiques
+	</p>
+	
+	<p>
+		Pour obtenir des informations detaillées sur les différentes représentations ci-dessous, n'hésitez pas à survoler les zones desirées.
+	</p>
+	<p>
+		La première idée à partir de ce dataset et de représenter le nombre de conflits par pays à l'aide d'une "carte de chaleur" mettant en valeur les pays avec les plus de conflits : 
+	</p>
+    <h3 class="text-center">Nombre de conflits armés par pays (1989-2018)</h3>
 
-    <h1>Armed conflict</h1>
+    <div class="mx-auto graph" id="world-map-total" style="width: 800px; height: 600px" ></div>
+	<p>
+		A noter que sur cette carte les pays représenter en blanc sont des pays pour lequel le dataset ne contient pas de conflit, soit parce qu'il n'y en a pas eu, soit car il a été impossible d'obtenir des informations pour ce pays
+	</p>
+	<p>
+		on remarque	donc que la plupart des conflits se sont deroulés dans quelques régions du monde : 
+	</p>
+	<ul>
+		<li>Golf arabique</li>
+		<li>Asie du sud</li>
+		<li>Russie</li>
+		<li>Afrique</li>
+		<li>Amérique centrale</li>
+	</ul>
+	<p>
+		Et au contraire on remarque que certaines régions sont pratiquement exemptes de conflit : 
+	</p>
+	<ul>
+		<li>Europe</li>
+		<li>Oceanie</li>
+		<li>Amérique du nord</li>
+		<li>Amérique du sud</li>
+	</ul>
+	
+	<p>
+		Qui sont en fait l'ensemble des pays occidentaux, nous reviendrons plus tard dans l'article sur ces différentes régions.
+	</p>
+	<h3 class="text-center">Nombre de conflit par continent</h3>
 
-    <h2>Armed conflict from 1989 to 2018</h2>
-
-    <div id="world-map-total" style="width: 800px; height: 600px"></div>
-
-    <h2>Armed conflict with headlines from 1989 to 2018</h2>
-
-    <div id="world-map-pruned" style="width: 800px; height: 600px"></div>
-
-    <h2>Ratio of conflict with headlines over all the conflicts from 1989 to 2018</h2>
-
-    <div id="world-map-ratio-pruned-total" style="width: 800px; height: 600px"></div>
-
-    <h2>Ratio of headlines per conflict fom 1989 to 2018</h2>
-
-    <div id="world-map-ratio-headline-conflict" style="width: 800px; height: 600px"></div>
-
-    <h2>Ratio of headlines per death fom 1989 to 2018</h2>
-
-    <div id="world-map-ratio-deaths-headline" style="width: 800px; height: 600px"></div>
-
-    <h2>WordMap</h2>
-
-    <div id="word-map" style="width: 800px; height: 600px"></div>
-
-    <h2>Chart Pie Deaths</h2>
-
-    <div id="canvas-holder-deaths" style="width:40%">
-		<canvas id="chart-pie-deaths" width="400" height="400"></canvas>
-	</div>
-
-    <h2>Chart Pie Region</h2>
-
-    <div id="canvas-holder-region" style="width:40%">
+    <div class="mx-auto graph" id="canvas-holder-region" style="width:40%">
 		<canvas id="chart-pie-region" width="400" height="400"></canvas>
 	</div>
+	<p>
+		Il en ressort qu'environ 75% des conflits armés se deroulent en afrique ou en asie.
+	</p>
+	INSERT GRAPH 
+	<p>
+	Interressons-nous maintenant à nouveau à notre carte mais cette fois avec le nombre de combat couvert par la presse à la place du nombre de combat total. Dans le cas idéal ou tout les articles sont couverts, devrions obtenir exactement la même carte que tout à l'heure, voyons le résultat : 
+	</p>
+    <h3 class="text-center">Nombre de conflits armés par pays couvert par la presse (1989-2018)</h3>
 
+    <div class="mx-auto graph" id="world-map-pruned" style="width: 800px; height: 600px"></div>
+	
+	<p>
+		On remarque que la tendance générale reste identique mais il est difficile d'en tirer des conclusions, Pour cela interresons-nous plutôt à la carte du pourcentage de conflits couverts par la presse :  
+	</p>
+
+    <h3 class="text-center">Pourcentage de conflit couvert (1989-2018)</h3>
+
+    <div class="mx-auto graph" id="world-map-ratio-pruned-total" style="width: 800px; height: 600px"></div>
+	<p>
+		On voit donc que les pays occidentaux sont tous très bien couverts, a contriaro certains pays on une couverture médiatique catastrophique. Les pays les plus oubliés sont : 
+	</p>
+	<ul>
+		<li>Sri-lanka </li>
+		<li>Afrique du sud</li>
+		<li>Népal</li>
+	</ul>
+	<p>
+		Aves un pourcentage de conflit couvert proche de 0% sur des millier de conflit. De nombreux autre pays principalement situés en afrique et en asie sont très mal couvert.<br>
+	</p>
+	
+	<p>
+		Après avoir obtenus ces divers résultats, nous avons émis quelques hypothèses.  Pour commencer nous nous sommes interresser au nombre d'article moyen écrit par conflit avec comme postulat que les pays occidentaux auraient beaucoup plus d'articles par conflit que les articles venant de zone à plus forte densité de conflit.
+	</p>
+    <h3 class="text-center">Nombre d'article par conflit (1989-2018)</h3>
+
+    <div class="mx-auto graph" id="world-map-ratio-headline-conflict" style="width: 800px; height: 600px"></div>
+	
+	<p>
+		A noter que pour cette statistique nous n'avons pris en compte que les conflits couverts par des articles. On remarque donc que notre postulat de base est plutot correct mais n'est pas exact pour tout les pays. Une autre observation que l'on peut faire est le fait que en général les pays ayant peu de conflits on souvent un grand nombre d'articles par conflits.
+	</p>
+	<p>
+		De même que ci-dessus, nous nous somme interressé à la question suivante : y a t'il un rapport entre le nombre de mort et le nombre d'article de presse liés à un conflits.<br>
+		Nous avons donc a nouveau générer une "carte de chaleur" pour illustrer cette statistique :
+	</p>
+    <h3 class="text-center">Nombre d'article par mort (1989-2018)</h3>
+
+    <div class="mx-auto graph" id="world-map-ratio-deaths-headline" style="width: 800px; height: 600px"></div>
+	
+	<p>
+		il en résulte que ces données sont assez difficiles à interpreter, en effet si un conflit à eu comme conséquence un grand nombre de victime, par exemple des milliers, il n'y aura pas un nombre d'article proportionel.
+	</p>
+
+    <h3 class="text-center">Nuage de mot des titres d'articles </h3>
+
+    <div class="mx-auto graph" id="word-map" style="width: 800px; height: 600px"></div>
+	<br>
+	<p>
+		Ce nuages de mots à été généré à partir des titres de l'ensemble des articles de presse recensé. Certains mots nous sautent directement au yeux (soldiers, attack, kill, taliban, ...) mais certains mots important nous semblent assez peu mise en avant.<br>
+		Nous nous somme tous particulièrement interressé au mot "civilians", D'ailleur vous ne l'avez probablement pas remarqué dans le nuage de mot ci-dessus. Pour la bonne et simple raison qu'il est assez peu cité dans les articles.
+	</p>	
+	<p>
+		A partir de ce constat nous avons comparé les morts dans les deux partis en guerre et les victimes civiles et voici ce que nous avons obtenus : 
+	</p>
+	
+    <h3 class="text-center">Statut des morts</h3>
+
+    <div class="mx-auto graph" id="canvas-holder-deaths" style="width:40%">
+		<canvas id="chart-pie-deaths" width="400" height="400"></canvas>
+	</div>
+	<p>
+	On observe donc que la pluparts des morts sont en fait des civils alors qu'avec le nuage de mot on constate qu'ils sont assez absent des titres d'articles.
+	</p>
+
+	<h4>Sources</h4>
+	<p>
+		Sundberg, Ralph, and Erik Melander, 2013, “Introducing the UCDP Georeferenced Event Dataset”, Journal of Peace Research, vol.50, no.4, 523-532 <br>
+		Högbladh Stina, 2019, “UCDP GED Codebook version 19.1”, Department of Peace and Conflict Research, Uppsala University<br>
+	</p>
+</div>
 </body>
 </html>

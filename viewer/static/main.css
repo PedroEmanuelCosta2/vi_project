@@ -14,3 +14,21 @@
 .jvectormap-legend-icons {
   color: black;
 }
+body {
+  font-family: "Georgia", Times, serif;
+}
+.container{
+	margin: 20px;
+}
+p {
+  font-size: 20px;
+}
+h1{
+	padding-bottom: 15px;
+}
+li {
+  font-size: 20px;
+}
+.graph{
+	padding-bottom:20px;
+}
