@@ -1,3 +1,7 @@
+var CONFLIT_TOTAL = get_conflict_data("/armed_conflict_total");
+var DEATHS_CONFLIT = get_conflict_data("/deaths_per_conflict");
+var DURATION_CONFLIT = get_conflict_data("/duration_per_conflict");
+
 function request_data(backend_url, div, vis_function, ...args) {
     $.ajax({
         url: backend_url,
@@ -10,22 +14,79 @@ function request_data(backend_url, div, vis_function, ...args) {
     });
 }
 
-function show_map(data, div, title = "Number of armed conflict", outlayer = false, map = 'world_mill') {
+function get_conflict_data(backend_url) {
+    let val = "";
 
-    if (outlayer) {
-        for (const [key, value] of Object.entries(data)) {
-            if(key === 'TT'){
+    $.ajax({
+        url: backend_url,
+        type: 'POST',
+        processData: false,
+        contentType: false,
+        success: function (data) {
+            val = data;
+        },
+        async: false
+    });
+
+    return val;
+}
+
+function round(value, decimals) {
+    return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+}
+
+function ratio_of_conflict_slider(slider_value, conflict_data, step) {
+
+    let new_data = {};
+    let up_value = slider_value + step;
+
+    $("#value").text("Value between : " + slider_value + " - " + up_value);
+
+    for (const [key, value] of Object.entries(conflict_data)) {
+        new_data[key] = 0;
+
+        for (let i = 0; i < value.length; i++) {
+            if (value[i] <= up_value && value[i] >= slider_value) {
+                new_data[key] += 1
+            }
+        }
+    }
+
+    for (const [key, value] of Object.entries(CONFLIT_TOTAL)) {
+        if (value > 0) {
+            new_data[key] = round(new_data[key] / value, 2) * 100;
+        } else {
+            delete new_data[key];
+        }
+    }
+
+    return new_data;
+}
+
+function show_map(data, div,
+                  title = "Number of armed conflict",
+                  colors = ['#00cc05', '#f63200'],
+                  out_layer = false,
+                  use_slider = false,
+                  map = 'world_mill') {
+
+    if (out_layer) {
+        for (const [key, _] of Object.entries(data)) {
+            if (key === 'TT') {
                 data['TT'] = 1
             }
         }
     }
 
-    $('#' + div).vectorMap({
+    let map_id = $('#' + div);
+    let tool_tip_data = data;
+
+    map_id.vectorMap({
         map: map,
         series: {
             regions: [{
                 values: data,
-                scale: ['#00cc05', '#f63200'],
+                scale: colors,
                 legend: {
                     vertical: false
                 },
@@ -33,18 +94,49 @@ function show_map(data, div, title = "Number of armed conflict", outlayer = fals
             }]
         },
         onRegionTipShow: function (e, el, code) {
-            let value = data[code] === undefined ? 0 : data[code];
+            let value = tool_tip_data[code] === undefined ? 0 : tool_tip_data[code];
             el.html(el.html() + ' ( ' + title + ' - ' + value + ')');
         }
     });
+
+    if (use_slider) {
+
+        let max = 100;
+        let step = max / 5;
+
+        // $("#filter").selectmenu({
+        //     change: function (event, data) {
+        //         console.log(data.item.value);
+        //         if(data.item.value === "Deaths"){
+        //             max = 1000;
+        //             conflict_data = DEATHS_CONFLIT;
+        //         }else{
+        //             max = 365;
+        //             conflict_data = DURATION_CONFLIT;
+        //         }
+        //     }
+        // });
+
+        $("#value").text("Value between : " + 0 + " - " + step);
+        let mapObject = map_id.vectorMap('get', 'mapObject');
+
+        $("#slider").slider({
+            value: 0,
+            min: 0,
+            max: max,
+            step: step,
+            slide: function (event, ui) {
+                mapObject.series.regions[0].setValues(ratio_of_conflict_slider(ui.value, DEATHS_CONFLIT, step));
+                tool_tip_data = ratio_of_conflict_slider(ui.value, DEATHS_CONFLIT, step);
+            }
+        });
+    }
 }
 
 function pie_chart(data, div, colors) {
 
     let values = Object.values(data);
     let keys = Object.keys(data);
-
-    console.log(data);
 
     let config = {
         type: 'pie',
@@ -101,14 +193,22 @@ function word_map(data, div) {
 
 
 $(document).ready(function () {
+
     request_data("/armed_conflict_total", "world-map-total", show_map);
     request_data("/armed_conflict_pruned", "world-map-pruned", show_map);
+
+    let red = '#f63200';
+    let green = '#00cc05';
+
     request_data("/ratio_pruned_over_total", "world-map-ratio-pruned-total", show_map,
-        "Ratio covered conflict over all");
-    request_data("/headlines_ratio_armed_conflict", "world-map-ratio-headline-conflict", show_map,
-        "Ratio of headlines per conflict", true);
-    request_data("/deaths_per_headline", "world-map-ratio-deaths-headline", show_map,
-        "Ratio of deaths per headline", true);
+        "Ratio covered conflict over all", [green, red], false, true);
+
+    request_data("/headlines_per_conflict", "world-map-headlines-per-conflict", show_map,
+        "Ratio of headlines per conflict", [red, green], true);
+
+    request_data("/headlines_per_death", "world-map-headlines-per-death", show_map,
+        "Ratio of deaths per headline", [red, green], true);
+
     request_data("/headlines_word_map", "word-map", word_map);
 
     let colors = [

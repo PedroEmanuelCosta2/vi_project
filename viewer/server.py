@@ -49,10 +49,8 @@ def post_ratio_pruned_over_total():
         if armed_conflict_total[country_code] > 0:
             ratio = round(
                 (armed_conflict_pruned[country_code] / armed_conflict_total[country_code]), 2) * 100
-        else:
-            ratio = 0
 
-        ratio_total_over_pruned[country_code] = ratio
+            ratio_total_over_pruned[country_code] = ratio
 
     json_dict = ratio_total_over_pruned
 
@@ -93,8 +91,8 @@ def post_deaths_by_side():
     return jsonify(json_dict)
 
 
-@app.route('/headlines_ratio_armed_conflict', methods=['POST'])
-def post_headlines_ratio_armed_conflict():
+@app.route('/headlines_per_conflict', methods=['POST'])
+def post_headlines_per_conflict():
     number_of_conflict_dict = number_of_conflict_per_country(ARMED_CONFLICT_MANAGER.armed_conflict_pruned)
     number_of_headlines_dict = {}
     headlines_per_conflict = {}
@@ -113,18 +111,16 @@ def post_headlines_ratio_armed_conflict():
         number_of_conflict = number_of_conflict_dict[country_code]
         number_of_headlines = number_of_headlines_dict[country_code]
 
-        if number_of_conflict > 1:
+        if number_of_conflict >= 1:
             headlines_per_conflict[country_code] = round((number_of_headlines / number_of_conflict), 2)
-        else:
-            headlines_per_conflict[country_code] = 0
 
     json_dict = headlines_per_conflict
 
     return jsonify(json_dict)
 
 
-@app.route('/deaths_per_headline', methods=['POST'])
-def post_deaths_per_headline():
+@app.route('/headlines_per_death', methods=['POST'])
+def post_headlines_per_death():
     deaths_per_headline = {}
 
     for conflict in ARMED_CONFLICT_MANAGER.armed_conflict_pruned:
@@ -138,19 +134,51 @@ def post_deaths_per_headline():
 
         if deaths > 0:
             ratio = round((number_of_headlines / deaths), 2)
-        else:
-            ratio = 0
-
-        deaths_per_headline[country_code].append(ratio)
+            deaths_per_headline[country_code].append(ratio)
 
     mean_deaths_per_headline = {}
 
     for country in deaths_per_headline.keys():
-        mean_deaths_per_headline[country] = statistics.median(deaths_per_headline[country])
+        if len(deaths_per_headline[country]) > 0:
+            mean_deaths_per_headline[country] = statistics.median(deaths_per_headline[country])
 
     json_dict = mean_deaths_per_headline
 
     return jsonify(json_dict)
+
+
+@app.route('/deaths_per_conflict', methods=['POST'])
+def post_deaths_per_conflict():
+    deaths_per_conflict_dict = {}
+
+    for conflict in ARMED_CONFLICT_MANAGER.armed_conflict_pruned:
+        country_code = conflict.country_code
+
+        if country_code not in deaths_per_conflict_dict.keys():
+            deaths_per_conflict_dict[country_code] = []
+
+        if conflict.conflict_name != "":
+            deaths = conflict.deaths_a + conflict.deaths_b + conflict.deaths_civilians
+            deaths_per_conflict_dict[country_code].append(deaths)
+
+    return deaths_per_conflict_dict
+
+
+@app.route('/duration_per_conflict', methods=['POST'])
+def post_duration_per_conflict():
+    duration_per_conflict_dict = {}
+
+    for conflict in ARMED_CONFLICT_MANAGER.armed_conflict_pruned:
+        country_code = conflict.country_code
+
+        if country_code not in duration_per_conflict_dict.keys():
+            duration_per_conflict_dict[country_code] = []
+
+        if conflict.conflict_name != "":
+            duration = (conflict.date_end - conflict.date_start).days
+            duration_per_conflict_dict[country_code].append(duration)
+
+    return duration_per_conflict_dict
 
 
 @app.route('/headlines_word_map', methods=['POST'])
