@@ -99,11 +99,11 @@ def post_headlines_per_region():
 
 @app.route('/deaths_by_side', methods=['POST'])
 def post_deaths_by_side():
-    deaths_by_side = {'Deaths of belligerents': 0, 'Deaths of civilians': 0}
+    deaths_by_side = {'Morts de belligérants': 0, 'Morts de civile': 0}
 
     for conflict in ARMED_CONFLICT_MANAGER.armed_conflict_pruned:
-        deaths_by_side['Deaths of belligerents'] += (conflict.deaths_a + conflict.deaths_b)
-        deaths_by_side['Deaths of civilians'] += conflict.deaths_civilians
+        deaths_by_side['Morts de belligérants'] += (conflict.deaths_a + conflict.deaths_b)
+        deaths_by_side['Morts de civiles'] += conflict.deaths_civilians
 
     json_dict = deaths_by_side
 

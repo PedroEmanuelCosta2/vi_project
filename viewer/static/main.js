@@ -41,10 +41,10 @@ function ratio_of_conflict_slider(slider_value, conflict_data, step, max) {
     let new_data = {};
     let up_value = slider_value + step;
 
-    if (up_value > max){
+    if (up_value > max) {
         up_value = Number.MAX_VALUE;
         $("#value").text("Valeur entre : " + slider_value + "+");
-    }else{
+    } else {
         $("#value").text("Valeur entre : " + slider_value + " - " + up_value);
     }
 
@@ -109,35 +109,56 @@ function show_map(data, div,
     }
 
     let map_id = $('#' + div);
-    TOOL_TIP_DATA = data;
 
-    map_id.vectorMap({
-        map: map,
-        series: {
-            regions: [{
-                values: data,
-                scale: colors,
-                legend: {
-                    vertical: false
-                },
-                normalizeFunction: 'polynomial'
-            }]
-        },
-        onRegionTipShow: function (e, el, code) {
-            let value = TOOL_TIP_DATA[code] === undefined ? 0 : TOOL_TIP_DATA[code];
-            el.html(el.html() + ' ( ' + title + ' - ' + value + ')');
-        }
-    });
+    if (!use_slider) {
 
-    if (use_slider) {
+        map_id.vectorMap({
+            map: map,
+            series: {
+                regions: [{
+                    values: data,
+                    scale: colors,
+                    legend: {
+                        vertical: false
+                    },
+                    normalizeFunction: 'polynomial'
+                }]
+            },
+            onRegionTipShow: function (e, el, code) {
+                let value = data[code] === undefined ? 0 : data[code];
+                el.html(el.html() + ' ( ' + title + ' - ' + value + ')');
+            }
+        });
+
+    } else {
+
+        TOOL_TIP_DATA = data;
+
+        map_id.vectorMap({
+            map: map,
+            series: {
+                regions: [{
+                    values: data,
+                    scale: colors,
+                    legend: {
+                        vertical: false
+                    },
+                    normalizeFunction: 'polynomial'
+                }]
+            },
+            onRegionTipShow: function (e, el, code) {
+                let value = TOOL_TIP_DATA[code] === undefined ? 0 : TOOL_TIP_DATA[code];
+                el.html(el.html() + ' ( ' + title + ' - ' + value + ')');
+            }
+        });
 
         create_slider(map_id, 100, DEATHS_CONFLIT);
 
         $("#filter").selectmenu({
             change: function (event, data) {
-                if (data.item.label === "Morts"){
+                if (data.item.label === "Morts") {
                     create_slider(map_id, 100, DEATHS_CONFLIT);
-                }else{
+                } else {
                     create_slider(map_id, 365, DURATION_CONFLIT);
                 }
             }
@@ -243,8 +264,8 @@ $(document).ready(function () {
     colors = [
         window.chartColors.red,
         window.chartColors.orange,
-        window.chartColors.purple,
         window.chartColors.grey,
+        window.chartColors.purple,
         window.chartColors.blue
     ];
     request_data("/conflict_per_region", "chart-pie-conflict-region", pie_chart, colors);
