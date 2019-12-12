@@ -17,8 +17,7 @@ class ArmedConflict:
         self.source_office = [] if source_office is None else self.split_text(source_office, ';')
 
         try:
-            self.source_date = [] if source_date is None else [date(int(d[0:4]), int(d[5:7]), int(d[8:10])) for d in
-                                                               source_date.split(';')]
+            self.source_date = [] if source_date is None else [self.date_format(d) for d in source_date.split(';')]
         except:
             self.source_date = []
 
@@ -35,6 +34,10 @@ class ArmedConflict:
         self.deaths_a = 0 if deaths_a is None else int(deaths_a)
         self.deaths_b = 0 if deaths_b is None else int(deaths_b)
         self.deaths_civilians = 0 if deaths_civilians is None else int(deaths_civilians)
+
+    @staticmethod
+    def date_format(d):
+        return date(int(d[0:4]), int(d[5:7]), int(d[8:10]))
 
     @staticmethod
     def split_text(text, sep):

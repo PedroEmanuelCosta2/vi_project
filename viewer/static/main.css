@@ -1,16 +1,60 @@
 .jvectormap-legend-title {
-  font-size: 12px;
+    font-size: 12px;
 }
 
 .jvectormap-legend .jvectormap-legend-tick-sample {
-  height: 26px;
+    height: 26px;
 }
 
 .jvectormap-legend-icons {
-  background: white;
-  border: black 1px solid;
+    background: white;
+    border: black 1px solid;
 }
 
 .jvectormap-legend-icons {
-  color: black;
+    color: black;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 60%;
+    margin-top: 2%;
+    height: 15px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+fieldset {
+    border: 0;
+}
+
+label {
+    display: block;
+    margin: 30px 0 0 0;
+}
+
+.overflow {
+    height: 200px;
 }
