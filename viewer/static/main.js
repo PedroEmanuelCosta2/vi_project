@@ -1,6 +1,7 @@
 var CONFLIT_TOTAL = get_conflict_data("/armed_conflict_total");
 var DEATHS_CONFLIT = get_conflict_data("/deaths_per_conflict");
 var DURATION_CONFLIT = get_conflict_data("/duration_per_conflict");
+var TOOL_TIP_DATA = "";
 
 function request_data(backend_url, div, vis_function, ...args) {
     $.ajax({
@@ -35,12 +36,17 @@ function round(value, decimals) {
     return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
 }
 
-function ratio_of_conflict_slider(slider_value, conflict_data, step) {
+function ratio_of_conflict_slider(slider_value, conflict_data, step, max) {
 
     let new_data = {};
     let up_value = slider_value + step;
 
-    $("#value").text("Value between : " + slider_value + " - " + up_value);
+    if (up_value > max){
+        up_value = Number.MAX_VALUE;
+        $("#value").text("Valeur entre : " + slider_value + "+");
+    }else{
+        $("#value").text("Valeur entre : " + slider_value + " - " + up_value);
+    }
 
     for (const [key, value] of Object.entries(conflict_data)) {
         new_data[key] = 0;
@@ -63,6 +69,30 @@ function ratio_of_conflict_slider(slider_value, conflict_data, step) {
     return new_data;
 }
 
+function create_slider(map_id, max, conflict_data) {
+
+    let slider_id = $("#slider");
+
+    let step = max / 5;
+
+    $("#value").text("Valeur entre : " + 0 + " - " + step);
+    let mapObject = map_id.vectorMap('get', 'mapObject');
+
+    mapObject.series.regions[0].setValues(ratio_of_conflict_slider(0, conflict_data, step, max));
+    TOOL_TIP_DATA = ratio_of_conflict_slider(0, conflict_data, step, max);
+
+    slider_id.slider({
+        value: 0,
+        min: 0,
+        max: max,
+        step: step,
+        slide: function (event, ui) {
+            mapObject.series.regions[0].setValues(ratio_of_conflict_slider(ui.value, conflict_data, step, max));
+            TOOL_TIP_DATA = ratio_of_conflict_slider(ui.value, conflict_data, step, max);
+        }
+    });
+}
+
 function show_map(data, div,
                   title = "Number of armed conflict",
                   colors = ['#00cc05', '#f63200'],
@@ -79,7 +109,7 @@ function show_map(data, div,
     }
 
     let map_id = $('#' + div);
-    let tool_tip_data = data;
+    TOOL_TIP_DATA = data;
 
     map_id.vectorMap({
         map: map,
@@ -94,42 +124,25 @@ function show_map(data, div,
             }]
         },
         onRegionTipShow: function (e, el, code) {
-            let value = tool_tip_data[code] === undefined ? 0 : tool_tip_data[code];
+            let value = TOOL_TIP_DATA[code] === undefined ? 0 : TOOL_TIP_DATA[code];
             el.html(el.html() + ' ( ' + title + ' - ' + value + ')');
         }
     });
 
     if (use_slider) {
 
-        let max = 100;
-        let step = max / 5;
+        create_slider(map_id, 100, DEATHS_CONFLIT);
 
-        // $("#filter").selectmenu({
-        //     change: function (event, data) {
-        //         console.log(data.item.value);
-        //         if(data.item.value === "Deaths"){
-        //             max = 1000;
-        //             conflict_data = DEATHS_CONFLIT;
-        //         }else{
-        //             max = 365;
-        //             conflict_data = DURATION_CONFLIT;
-        //         }
-        //     }
-        // });
-
-        $("#value").text("Value between : " + 0 + " - " + step);
-        let mapObject = map_id.vectorMap('get', 'mapObject');
-
-        $("#slider").slider({
-            value: 0,
-            min: 0,
-            max: max,
-            step: step,
-            slide: function (event, ui) {
-                mapObject.series.regions[0].setValues(ratio_of_conflict_slider(ui.value, DEATHS_CONFLIT, step));
-                tool_tip_data = ratio_of_conflict_slider(ui.value, DEATHS_CONFLIT, step);
+        $("#filter").selectmenu({
+            change: function (event, data) {
+                if (data.item.label === "Morts"){
+                    create_slider(map_id, 100, DEATHS_CONFLIT);
+                }else{
+                    create_slider(map_id, 365, DURATION_CONFLIT);
+                }
             }
         });
+
     }
 }
 
