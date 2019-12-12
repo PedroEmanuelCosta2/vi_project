@@ -57,23 +57,42 @@ def post_ratio_pruned_over_total():
     return jsonify(json_dict)
 
 
-@app.route('/headlines_region', methods=['POST'])
-def post_headlines_region():
-    region_headlines = {}
+@app.route('/conflict_per_region', methods=['POST'])
+def post_conflict_per_region():
+    conflict_per_region = {}
+
+    for conflict in ARMED_CONFLICT_MANAGER.armed_conflict_total:
+        region = conflict.region.capitalize()
+
+        if region != "" and region != 0:
+
+            if region not in conflict_per_region.keys():
+                conflict_per_region[region] = 0
+
+            conflict_per_region[region] += 1
+
+    json_dict = conflict_per_region
+
+    return jsonify(json_dict)
+
+
+@app.route('/headlines_per_region', methods=['POST'])
+def post_headlines_per_region():
+    headlines_per_region = {}
 
     for conflict in ARMED_CONFLICT_MANAGER.armed_conflict_pruned:
 
-        region = conflict.region
+        region = conflict.region.capitalize()
         number_of_headlines = conflict.number_of_sources
 
         if region != "" and region != 0:
 
-            if region not in region_headlines.keys():
-                region_headlines[region] = 0
+            if region not in headlines_per_region.keys():
+                headlines_per_region[region] = 0
 
-            region_headlines[region] += number_of_headlines
+            headlines_per_region[region] += number_of_headlines
 
-    json_dict = region_headlines
+    json_dict = headlines_per_region
 
     return jsonify(json_dict)
 

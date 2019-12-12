@@ -73,18 +73,23 @@
 	<p>
 		Qui sont en fait l'ensemble des pays occidentaux, nous reviendrons plus tard dans l'article sur ces différentes régions.
 	</p>
-	
+	<h3 class="text-center">Nombre de conflit par région</h3>
+	<div class="mx-auto graph" id="canvas-conflict-region" style="width:40%">
+		<canvas id="chart-pie-conflict-region" width="400" height="400"></canvas>
+	</div>
 	<p>
 		Il en ressort qu'environ 75% des conflits armés se deroulent en afrique ou en asie.
 	</p>
 	<h3 class="text-center">Nombre d'article par région</h3>
 
-    <div class="mx-auto graph" id="canvas-holder-region" style="width:40%">
-		<canvas id="chart-pie-region" width="400" height="400"></canvas>
+    <div class="mx-auto graph" id="canvas-articles-region" style="width:40%">
+		<canvas id="chart-pie-articles-region" width="400" height="400"></canvas>
 	</div>
 	<p>
 		COMMENTER DEUXIEME GRAPHE
 	</p>
+
+	
 	<p>
 	Interressons-nous maintenant à nouveau à notre carte mais cette fois avec le nombre de combat couvert par la presse à la place du nombre de combat total. Dans le cas idéal ou tout les articles sont couverts, devrions obtenir exactement la même carte que tout à l'heure, voyons le résultat : 
 	</p>
@@ -110,8 +115,8 @@
         <fieldset class="text-center">
             <label for="filter">Select a filter</label>
             <select name="filter" id="filter">
-              <option selected="selected">Deaths</option>
-              <option>Duration</option>
+              <option selected="selected">Morts</option>
+              <option>Durée</option>
             </select>
         </fieldset>
 
