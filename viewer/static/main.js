@@ -235,8 +235,18 @@ $(document).ready(function () {
         window.chartColors.red,
         window.chartColors.orange,
         window.chartColors.purple,
-        window.chartColors.green,
+        window.chartColors.grey,
         window.chartColors.blue
     ];
-    request_data("/headlines_region", "chart-pie-region", pie_chart, colors);
+    request_data("/headlines_per_region", "chart-pie-articles-region", pie_chart, colors);
+
+    colors = [
+        window.chartColors.red,
+        window.chartColors.orange,
+        window.chartColors.purple,
+        window.chartColors.grey,
+        window.chartColors.blue
+    ];
+    request_data("/conflict_per_region", "chart-pie-conflict-region", pie_chart, colors);
+
 });
