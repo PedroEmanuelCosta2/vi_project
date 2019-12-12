@@ -111,7 +111,7 @@ def post_headlines_per_conflict():
         number_of_conflict = number_of_conflict_dict[country_code]
         number_of_headlines = number_of_headlines_dict[country_code]
 
-        if number_of_conflict > 1:
+        if number_of_conflict >= 1:
             headlines_per_conflict[country_code] = round((number_of_headlines / number_of_conflict), 2)
 
     json_dict = headlines_per_conflict
