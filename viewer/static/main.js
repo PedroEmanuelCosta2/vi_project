@@ -159,12 +159,12 @@ function show_map(data, div,
             }
         });
 
-        create_slider(map_id, 100, DEATHS_CONFLICT_PRUNED, DEATHS_CONFLICT_TOTAL);
+        create_slider(map_id, 500, DEATHS_CONFLICT_PRUNED, DEATHS_CONFLICT_TOTAL);
 
         $("#filter").selectmenu({
             change: function (event, data) {
                 if (data.item.label === "Morts") {
-                    create_slider(map_id, 100, DEATHS_CONFLICT_PRUNED, DEATHS_CONFLICT_TOTAL);
+                    create_slider(map_id, 500, DEATHS_CONFLICT_PRUNED, DEATHS_CONFLICT_TOTAL);
                 } else {
                     create_slider(map_id, 365, DURATION_CONFLICT_PRUNED, DURATION_CONFLICT_TOTAL);
                 }
