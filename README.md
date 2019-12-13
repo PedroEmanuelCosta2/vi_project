@@ -17,7 +17,9 @@ Or you can use the Pipfile to deploy your virtual environnement by using the com
 
 ` pipenv install `
 
-Once your environnement is correctly set up. You'll need to dowload a stopwords list from nltk. To do this, you need to do the following commands in your python environnement. 
+You will need to put some data on the data folder to make the application work. You can then download the needed data with the following [link](https://drive.switch.ch/index.php/s/runMxGL0vUF7jZ4).
+
+Once your environnement is correctly set up and the data is correctly placed. You'll need to dowload a stopwords list from nltk. To do this, you need to do the following commands in your python environnement. 
 
 ```python
 import nltk
