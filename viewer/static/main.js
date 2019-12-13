@@ -68,8 +68,6 @@ function ratio_of_conflict_slider(slider_value, conflict_data_pruned, conflict_d
     for (const [key, value] of Object.entries(new_data_total)) {
         if (value > 0) {
             new_data[key] = (new_data[key] / value) * 100;
-        }else{
-            new_data[key] = 0;
         }
     }
 
@@ -102,7 +100,8 @@ function create_slider(map_id, max, conflict_data_pruned, conflict_data_total) {
 
 function show_map(data, div,
                   title = "Number of armed conflict",
-                  colors = ['#00cc05', '#f63200'],
+                  colors = ['#00cc05','#f63200'],
+                  normalization = 'polynomial',
                   out_layer = false,
                   use_slider = false,
                   map = 'world_mill') {
@@ -128,7 +127,7 @@ function show_map(data, div,
                     legend: {
                         vertical: false
                     },
-                    normalizeFunction: 'polynomial'
+                    normalizeFunction: normalization
                 }]
             },
             onRegionTipShow: function (e, el, code) {
@@ -149,8 +148,7 @@ function show_map(data, div,
                     scale: colors,
                     legend: {
                         vertical: false
-                    },
-                    normalizeFunction: 'polynomial'
+                    }
                 }]
             },
             onRegionTipShow: function (e, el, code) {
@@ -158,6 +156,8 @@ function show_map(data, div,
                 el.html(el.html() + ' ( ' + title + ' - ' + value + ')');
             }
         });
+
+        console.log(map_id);
 
         create_slider(map_id, 500, DEATHS_CONFLICT_PRUNED, DEATHS_CONFLICT_TOTAL);
 
@@ -239,16 +239,17 @@ $(document).ready(function () {
     request_data("/armed_conflict_pruned", "world-map-pruned", show_map);
 
     let red = '#f63200';
+    let orange = '#e5a712';
     let green = '#00cc05';
 
     request_data("/ratio_pruned_over_total", "world-map-ratio-pruned-total", show_map,
-        "Ratio covered conflict over all", [red, green], false, true);
+        "Ratio covered conflict over all", [red, orange,green], '', false, true);
 
     request_data("/headlines_per_conflict", "world-map-headlines-per-conflict", show_map,
-        "Ratio of headlines per conflict", [red, green], true);
+        "Ratio of headlines per conflict", [red, orange, green], '',true);
 
     request_data("/headlines_per_death", "world-map-headlines-per-death", show_map,
-        "Ratio of deaths per headline", [red, green], true);
+        "Ratio of deaths per headline", [red, orange, green], '',true);
 
     request_data("/headlines_word_map", "word-map", word_map);
 
