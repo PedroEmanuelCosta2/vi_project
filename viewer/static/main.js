@@ -1,6 +1,7 @@
-var CONFLIT_TOTAL = get_conflict_data("/armed_conflict_total");
-var DEATHS_CONFLIT = get_conflict_data("/deaths_per_conflict");
-var DURATION_CONFLIT = get_conflict_data("/duration_per_conflict");
+var DEATHS_CONFLICT_TOTAL = get_conflict_data("/deaths_per_conflict_total");
+var DEATHS_CONFLICT_PRUNED = get_conflict_data("/deaths_per_conflict_pruned");
+var DURATION_CONFLICT_TOTAL = get_conflict_data("/duration_per_conflict_total");
+var DURATION_CONFLICT_PRUNED = get_conflict_data("/duration_per_conflict_pruned");
 var TOOL_TIP_DATA = "";
 
 function request_data(backend_url, div, vis_function, ...args) {
@@ -10,7 +11,6 @@ function request_data(backend_url, div, vis_function, ...args) {
         processData: false,
         contentType: false
     }).done(function (data) {
-        console.log(data);
         vis_function(data, div, ...args);
     });
 }
@@ -32,44 +32,51 @@ function get_conflict_data(backend_url) {
     return val;
 }
 
-function round(value, decimals) {
-    return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
-}
-
-function ratio_of_conflict_slider(slider_value, conflict_data, step, max) {
+function ratio_of_conflict_slider(slider_value, conflict_data_pruned, conflict_data_total, step, max) {
 
     let new_data = {};
+    let new_data_total = {};
     let up_value = slider_value + step;
 
-    if (up_value > max){
+    if (up_value > max) {
         up_value = Number.MAX_VALUE;
         $("#value").text("Valeur entre : " + slider_value + "+");
-    }else{
+    } else {
         $("#value").text("Valeur entre : " + slider_value + " - " + up_value);
     }
 
-    for (const [key, value] of Object.entries(conflict_data)) {
+    for (const [key, value] of Object.entries(conflict_data_pruned)) {
         new_data[key] = 0;
 
         for (let i = 0; i < value.length; i++) {
             if (value[i] <= up_value && value[i] >= slider_value) {
-                new_data[key] += 1
+                new_data[key] += 1;
             }
         }
     }
 
-    for (const [key, value] of Object.entries(CONFLIT_TOTAL)) {
+    for (const [key, value] of Object.entries(conflict_data_total)) {
+        new_data_total[key] = 0;
+
+        for (let i = 0; i < value.length; i++) {
+            if (value[i] <= up_value && value[i] >= slider_value) {
+                new_data_total[key] += 1;
+            }
+        }
+    }
+
+    for (const [key, value] of Object.entries(new_data_total)) {
         if (value > 0) {
-            new_data[key] = round(new_data[key] / value, 2) * 100;
-        } else {
-            delete new_data[key];
+            new_data[key] = (new_data[key] / value) * 100;
+        }else{
+            new_data[key] = 0;
         }
     }
 
     return new_data;
 }
 
-function create_slider(map_id, max, conflict_data) {
+function create_slider(map_id, max, conflict_data_pruned, conflict_data_total) {
 
     let slider_id = $("#slider");
 
@@ -78,8 +85,8 @@ function create_slider(map_id, max, conflict_data) {
     $("#value").text("Valeur entre : " + 0 + " - " + step);
     let mapObject = map_id.vectorMap('get', 'mapObject');
 
-    mapObject.series.regions[0].setValues(ratio_of_conflict_slider(0, conflict_data, step, max));
-    TOOL_TIP_DATA = ratio_of_conflict_slider(0, conflict_data, step, max);
+    mapObject.series.regions[0].setValues(ratio_of_conflict_slider(0, conflict_data_pruned, conflict_data_total, step, max));
+    TOOL_TIP_DATA = ratio_of_conflict_slider(0, conflict_data_pruned, conflict_data_total, step, max);
 
     slider_id.slider({
         value: 0,
@@ -87,8 +94,8 @@ function create_slider(map_id, max, conflict_data) {
         max: max,
         step: step,
         slide: function (event, ui) {
-            mapObject.series.regions[0].setValues(ratio_of_conflict_slider(ui.value, conflict_data, step, max));
-            TOOL_TIP_DATA = ratio_of_conflict_slider(ui.value, conflict_data, step, max);
+            mapObject.series.regions[0].setValues(ratio_of_conflict_slider(ui.value, conflict_data_pruned, conflict_data_total, step, max));
+            TOOL_TIP_DATA = ratio_of_conflict_slider(ui.value, conflict_data_pruned, conflict_data_total, step, max);
         }
     });
 }
@@ -109,36 +116,57 @@ function show_map(data, div,
     }
 
     let map_id = $('#' + div);
-    TOOL_TIP_DATA = data;
 
-    map_id.vectorMap({
-        map: map,
-        series: {
-            regions: [{
-                values: data,
-                scale: colors,
-                legend: {
-                    vertical: false
-                },
-                normalizeFunction: 'polynomial'
-            }]
-        },
-        onRegionTipShow: function (e, el, code) {
-            let value = TOOL_TIP_DATA[code] === undefined ? 0 : TOOL_TIP_DATA[code];
-            el.html(el.html() + ' ( ' + title + ' - ' + value + ')');
-        }
-    });
+    if (!use_slider) {
 
-    if (use_slider) {
+        map_id.vectorMap({
+            map: map,
+            series: {
+                regions: [{
+                    values: data,
+                    scale: colors,
+                    legend: {
+                        vertical: false
+                    },
+                    normalizeFunction: 'polynomial'
+                }]
+            },
+            onRegionTipShow: function (e, el, code) {
+                let value = data[code] === undefined ? 0 : data[code];
+                el.html(el.html() + ' ( ' + title + ' - ' + value + ')');
+            }
+        });
 
-        create_slider(map_id, 100, DEATHS_CONFLIT);
+    } else {
+
+        TOOL_TIP_DATA = data;
+
+        map_id.vectorMap({
+            map: map,
+            series: {
+                regions: [{
+                    values: data,
+                    scale: colors,
+                    legend: {
+                        vertical: false
+                    },
+                    normalizeFunction: 'polynomial'
+                }]
+            },
+            onRegionTipShow: function (e, el, code) {
+                let value = TOOL_TIP_DATA[code] === undefined ? 0 : TOOL_TIP_DATA[code];
+                el.html(el.html() + ' ( ' + title + ' - ' + value + ')');
+            }
+        });
+
+        create_slider(map_id, 500, DEATHS_CONFLICT_PRUNED, DEATHS_CONFLICT_TOTAL);
 
         $("#filter").selectmenu({
             change: function (event, data) {
-                if (data.item.label === "Morts"){
-                    create_slider(map_id, 100, DEATHS_CONFLIT);
-                }else{
-                    create_slider(map_id, 365, DURATION_CONFLIT);
+                if (data.item.label === "Morts") {
+                    create_slider(map_id, 500, DEATHS_CONFLICT_PRUNED, DEATHS_CONFLICT_TOTAL);
+                } else {
+                    create_slider(map_id, 365, DURATION_CONFLICT_PRUNED, DURATION_CONFLICT_TOTAL);
                 }
             }
         });
@@ -214,7 +242,7 @@ $(document).ready(function () {
     let green = '#00cc05';
 
     request_data("/ratio_pruned_over_total", "world-map-ratio-pruned-total", show_map,
-        "Ratio covered conflict over all", [green, red], false, true);
+        "Ratio covered conflict over all", [red, green], false, true);
 
     request_data("/headlines_per_conflict", "world-map-headlines-per-conflict", show_map,
         "Ratio of headlines per conflict", [red, green], true);
@@ -243,8 +271,8 @@ $(document).ready(function () {
     colors = [
         window.chartColors.red,
         window.chartColors.orange,
-        window.chartColors.purple,
         window.chartColors.grey,
+        window.chartColors.purple,
         window.chartColors.blue
     ];
     request_data("/conflict_per_region", "chart-pie-conflict-region", pie_chart, colors);

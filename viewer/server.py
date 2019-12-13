@@ -99,11 +99,11 @@ def post_headlines_per_region():
 
 @app.route('/deaths_by_side', methods=['POST'])
 def post_deaths_by_side():
-    deaths_by_side = {'Deaths of belligerents': 0, 'Deaths of civilians': 0}
+    deaths_by_side = {'Morts de belligérants': 0, 'Morts de civiles': 0}
 
     for conflict in ARMED_CONFLICT_MANAGER.armed_conflict_pruned:
-        deaths_by_side['Deaths of belligerents'] += (conflict.deaths_a + conflict.deaths_b)
-        deaths_by_side['Deaths of civilians'] += conflict.deaths_civilians
+        deaths_by_side['Morts de belligérants'] += (conflict.deaths_a + conflict.deaths_b)
+        deaths_by_side['Morts de civiles'] += conflict.deaths_civilians
 
     json_dict = deaths_by_side
 
@@ -166,38 +166,28 @@ def post_headlines_per_death():
     return jsonify(json_dict)
 
 
-@app.route('/deaths_per_conflict', methods=['POST'])
-def post_deaths_per_conflict():
-    deaths_per_conflict_dict = {}
-
-    for conflict in ARMED_CONFLICT_MANAGER.armed_conflict_pruned:
-        country_code = conflict.country_code
-
-        if country_code not in deaths_per_conflict_dict.keys():
-            deaths_per_conflict_dict[country_code] = []
-
-        if conflict.conflict_name != "":
-            deaths = conflict.deaths_a + conflict.deaths_b + conflict.deaths_civilians
-            deaths_per_conflict_dict[country_code].append(deaths)
-
-    return deaths_per_conflict_dict
+@app.route('/deaths_per_conflict_pruned', methods=['POST'])
+def post_deaths_per_conflict_pruned():
+    json_dict = get_deaths_per_conflict(ARMED_CONFLICT_MANAGER.armed_conflict_pruned)
+    return jsonify(json_dict)
 
 
-@app.route('/duration_per_conflict', methods=['POST'])
-def post_duration_per_conflict():
-    duration_per_conflict_dict = {}
+@app.route('/deaths_per_conflict_total', methods=['POST'])
+def post_deaths_per_conflict_total():
+    json_dict = get_deaths_per_conflict(ARMED_CONFLICT_MANAGER.armed_conflict_total)
+    return jsonify(json_dict)
 
-    for conflict in ARMED_CONFLICT_MANAGER.armed_conflict_pruned:
-        country_code = conflict.country_code
 
-        if country_code not in duration_per_conflict_dict.keys():
-            duration_per_conflict_dict[country_code] = []
+@app.route('/duration_per_conflict_pruned', methods=['POST'])
+def post_duration_per_conflict_pruned():
+    json_dict = get_durations_per_conflict(ARMED_CONFLICT_MANAGER.armed_conflict_pruned)
+    return jsonify(json_dict)
 
-        if conflict.conflict_name != "":
-            duration = (conflict.date_end - conflict.date_start).days
-            duration_per_conflict_dict[country_code].append(duration)
 
-    return duration_per_conflict_dict
+@app.route('/duration_per_conflict_total', methods=['POST'])
+def post_duration_per_conflict_total():
+    json_dict = get_durations_per_conflict(ARMED_CONFLICT_MANAGER.armed_conflict_total)
+    return jsonify(json_dict)
 
 
 @app.route('/headlines_word_map', methods=['POST'])
@@ -220,6 +210,38 @@ def post_headlines_word_map():
     json_dict = word_map
 
     return jsonify(json_dict)
+
+
+def get_durations_per_conflict(conflicts):
+    duration_per_conflict_dict = {}
+
+    for conflict in conflicts:
+        country_code = conflict.country_code
+
+        if country_code not in duration_per_conflict_dict.keys():
+            duration_per_conflict_dict[country_code] = []
+
+        if conflict.conflict_name != "":
+            duration = (conflict.date_end - conflict.date_start).days
+            duration_per_conflict_dict[country_code].append(duration)
+
+    return duration_per_conflict_dict
+
+
+def get_deaths_per_conflict(conflicts):
+    deaths_per_conflict_dict = {}
+
+    for conflict in conflicts:
+        country_code = conflict.country_code
+
+        if country_code not in deaths_per_conflict_dict.keys():
+            deaths_per_conflict_dict[country_code] = []
+
+        if conflict.year > 0:
+            deaths = conflict.deaths_a + conflict.deaths_b + conflict.deaths_civilians
+            deaths_per_conflict_dict[country_code].append(deaths)
+
+    return deaths_per_conflict_dict
 
 
 def number_of_conflict_per_country(armed_conflicts):
