@@ -23,10 +23,11 @@ If the data is correctly downloaded put it in the data folder and go to the stop
 
 Otherwise, if the above link isn't working, you can go download the dataset [ucdp ged global](https://ucdp.uu.se/downloads/index.html#ged_global) as an excel file and put it in a folder named `armed_conflict` in the data folder. You also need to create an empty folder `armed_conflict_pickle` next to the folder `armed_conflict`.
 
-After your data folder is correctly set up with your the excel file. Run the init script : 
-`python init_armed_conflict.py`. This script create the pickle file the backend need to use to making the application work.
+After your data folder is correctly set up with the excel file. Run the init script : 
+`python init_armed_conflict.py` (it may take some minutes). 
+This script create the pickle file the backend need to use to make the application work.
 
-Once your environnement is correctly set up and the data is correctly placed. You'll need to dowload a stopwords list from nltk. To do this, you need to do the following commands in your python environnement. 
+Once your environnement is correctly set up and the data is correctly placed. You'll need to download a stopwords list from nltk. To do this, you need to run one time the following commands in your python environnement. 
 
 ```python
 import nltk
